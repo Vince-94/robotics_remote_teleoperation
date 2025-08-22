@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  robot_core:
+    build: ./robot_core
+    container_name: robot_core
+    # in dev/demo mode mount local source for quicker iteration:
+    volumes:
+      - ./robot_core/src:/root/ros_ws/src:cached
+    environment:
+      - DEMO_MODE=true
+      - ROS_DISTRO=humble
+    # expose ports your robot uses, and devices when using real camera:
+    # devices:
+    #   - /dev/video0:/dev/video0
+
+  signaling:
+    build:
+      context: ./signaling_server
+      dockerfile: Dockerfile
+    container_name: signaling
+    ports:
+      - "8443:8443"
+    environment:
+      - AUTH_TOKENS=demo_token_123
+
+  bridge:
+    build: ./bridge_server
+    container_name: bridge
+    depends_on:
+      - robot_core
+      - signaling
+    ports:
+      - "9000:9000"
+
+  web:
+    build: ./web_dashboard
+    container_name: web_dashboard
+    depends_on:
+      - signaling
+    ports:
+      - "3000:3000"
