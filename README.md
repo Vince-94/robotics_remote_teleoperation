@@ -13,10 +13,11 @@
   - [How to use](#how-to-use)
     - [Setup](#setup)
   - [Roaddmap](#roaddmap)
-    - [Features](#features)
-    - [Safety](#safety)
-    - [Telemetry](#telemetry)
-    - [Logging](#logging)
+    - [Robot Core (ROS 2)](#robot-core-ros-2)
+    - [Web Dashboard (React + ROSBridge/WebSocket)](#web-dashboard-react--rosbridgewebsocket)
+    - [Backend / Signaling Server (FastAPI)](#backend--signaling-server-fastapi)
+    - [Networking \& Security](#networking--security)
+    - [Simulation \& Testing](#simulation--testing)
 
 
 ## Overview
@@ -98,21 +99,52 @@ On your host, you expose ports:
 
 ## Roaddmap
 
-### Features
-- Web Dashboard
-  - [ ] Video streaming. If you extend it with WebRTC, it can also stream video feed from the robot’s camera.
+### Robot Core (ROS 2)
+- Command interface nodes
+  - [ ] cmd_vel_subscriber.py: subscribes to /cmd_vel (geometry_msgs/Twist) to control wheels or simulated robot.
+  - [ ] Optional: arm/gripper commands (/joint_states, /trajectory_commands) if you’re targeting manipulators.
 
-### Safety
-- [ ] Watchdog node: subscribes to /cmd_vel_in (raw operator commands) and republishes to /cmd_vel after clamping and sanity checks. If no /cmd_vel_in is received for WATCHDOG_TIMEOUT_MS, publish zero velocities.
-- [ ] E-STOP: an /estop topic that immediately triggers hardware-level stop (if available) and also sets a software-level block in the watchdog.
-- [ ] Rate limiting: the bridge or signaling server should limit command frequency per operator.
-- [ ] Single-operator lock: default behavior is first-come control; add queueing or explicit lock handing for multi-user scenarios.
+- Sensor publishers
+  -[ ] camera_publisher.py or integrate with ros2_image_transport (for video streaming).
+  -[ ] lidar_publisher.py if you want mapping or obstacle detection.
+  -[ ] IMU data (if relevant).
 
-### Telemetry
-- [ ] /robot/status — battery %, health flags
-- [ ] /robot/telemetry — CPU %, memory, temperature
-- [ ] /tf, /odom — pose/transform
+- Health/status nodes
+  - [ ] CPU, battery, temperature monitoring (for real hardware).
+  - [ ] Already started with status_publisher.
 
-### Logging
-- [ ] Logging is available in each container via docker-compose logs <service> and aggregated logs (optionally) via a fluentd/ELK sidecar in production.
+- Launch files
+- [ ] teleop_launch.py: start command + status + sensors.
+- [ ] simulation_launch.py: same but with Gazebo / Ignition sim backend (so you can demo without hardware).
 
+- Telemetry
+  - [ ] /robot/status — battery %, health flags
+  - [ ] /robot/telemetry — CPU %, memory, temperature
+  - [ ] /tf, /odom — pose/transform
+
+### Web Dashboard (React + ROSBridge/WebSocket)
+- [ ] ✅ Joystick / keyboard teleop → send cmd_vel to the robot.
+- [ ] 📹 Video streaming panel → subscribe to robot camera feed.
+- [ ] 📊 Status widgets → CPU, battery, connection latency.
+- [ ] 🗺 Map view (optional) → visualize LIDAR / nav_msgs/OccupancyGrid.
+- [ ] 🔐 Authentication → basic user login / API token for secure access.
+
+### Backend / Signaling Server (FastAPI)
+- [ ] Manages WebRTC or WebSocket signaling.
+- [ ] Translates REST/WebSocket calls into ROS 2 messages via rosbridge_suite or rclpy.
+- [ ] Security layer (authentication, rate limiting).
+- [ ] Logging / replay of teleop sessions.
+
+### Networking & Security
+- [ ] VPN / Tailscale / Wireguard: secure connectivity between dashboard and robot.
+- [ ] TLS / HTTPS: encrypt web traffic.
+- [ ] Fail-safes:
+  - [ ] Watchdog that stops robot if commands stop arriving. Subscribes to /cmd_vel_in (raw operator commands) and republishes to /cmd_vel after clamping and sanity checks. If no /cmd_vel_in is received for WATCHDOG_TIMEOUT_MS, publish zero velocities.
+  - [ ] Emergency stop service /emergency_stop. An /estop topic that immediately triggers hardware-level stop (if available) and also sets a software-level block in the watchdog
+  - [ ] Rate limiting: the bridge or signaling server should limit command frequency per operator.
+  - [ ] Single-operator lock: default behavior is first-come control; add queueing or explicit lock handing for multi-user scenarios.
+
+### Simulation & Testing
+- [ ] Integrate Gazebo or Ignition with your cmd_vel + sensors.
+- [ ] Provide a launch file that spins up a “simulated turtlebot-like robot” + web dashboard.
+- [ ] Docker-compose profiles (sim vs real).
