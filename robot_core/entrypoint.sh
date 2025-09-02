@@ -3,6 +3,9 @@ set -e
 
 WORKSPACE=/root/ros_ws
 
+export force_color_prompt=yes
+source ~/.bashrc
+
 # Source ROS and workspace
 source /opt/ros/${ROS_DISTRO}/setup.bash
 if [ ! -f "${WORKSPACE}/install/setup.bash" ]; then
@@ -25,5 +28,5 @@ if [ "$#" -gt 0 ]; then
 else
     # Default demo: adjust launch file name to your package
     echo "Starting default robot demo (change in Dockerfile/CMD if needed)"
-    exec ros2 launch robot_launch teleop_launch.py
+    exec ros2 launch robot_launch teleop.launch.py
 fi

@@ -2,45 +2,35 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Quaternion
-import json
-import time
+import psutil
+import socket
 
-class StatusPub(Node):
+class StatusPublisher(Node):
     def __init__(self):
         super().__init__('status_publisher')
-        self.get_logger().info("Starting status_publisher...")
-        self.status_pub = self.create_publisher(String, '/robot/status', 10)
-        self.odom_pub = self.create_publisher(Odometry, '/odom', 10)
-        self.timer = self.create_timer(0.5, self.timer_cb)
-        self.counter = 0.0
+        self.publisher_ = self.create_publisher(String, '/robot_status', 10)
+        self.timer = self.create_timer(2.0, self.publish_status)  # every 2s
+        self.get_logger().info("status_publisher node started.")
 
-    def timer_cb(self):
-        # publish a small JSON status
-        st = {'battery': 100 - (self.counter % 100), 'cpu': 10 + (self.counter % 5)}
-        msg = String()
-        msg.data = json.dumps(st)
-        self.status_pub.publish(msg)
+    def publish_status(self):
+        cpu = psutil.cpu_percent()
+        mem = psutil.virtual_memory().percent
+        ip = socket.gethostbyname(socket.gethostname())
+        msg = f"CPU:{cpu}%, MEM:{mem}%, IP:{ip}"
+        self.publisher_.publish(String(data=msg))
+        # self.get_logger().info(f"Status: {msg}")
 
-        od = Odometry()
-        od.pose.pose.position.x = (self.counter * 0.05)
-        od.pose.pose.position.y = 0.0
-        od.pose.pose.position.z = 0.0
-        od.pose.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
-        self.odom_pub.publish(od)
-
-        self.counter += 1.0
-
-def main():
-    rclpy.init()
-    node = StatusPub()
+def main(args=None):
+    rclpy.init(args=args)
+    node = StatusPublisher()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        pass
-    node.destroy_node()
-    rclpy.shutdown()
+        node.get_logger().info(f"Stutting down node.")
+    except Exception as err:
+        node.get_logger().info(f"Unexpected error node: {err}.")
+    finally:
+        node.destroy_node()
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

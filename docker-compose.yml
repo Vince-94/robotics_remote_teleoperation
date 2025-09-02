@@ -8,7 +8,7 @@ services:
       - ./robot_core/src:/root/ros_ws/src:cached
     environment:
       - DEMO_MODE=true
-      - ROS_DISTRO=humble
+      - ROS_DISTRO=jazzy
     # expose ports your robot uses, and devices when using real camera:
     # devices:
     #   - /dev/video0:/dev/video0

@@ -37,17 +37,29 @@ A minimal, production-minded teleoperation stack for a single mobile robot. Prov
 - Docker & Docker Compose (v1.29+ recommended).
 - Optional: GPU support on robot host for hardware encoding (NVIDIA drivers + nvidia-container-runtime) for Jetson/desktop.
 - Modern browser (Chrome/Edge/Firefox) for the dashboard.
-- ROS2 distro: Humble or later on robot_core (sim uses compatible image).
+- ROS2 distro: Jazzy or later on robot_core (sim uses compatible image).
 
 
 ## Workflow
+
+```mermaid
+graph TD
+    A[Web Dashboard] -- /cmd_vel --> B[cmd_vel_subscriber]
+    B -- /wheel_commands --> D[Motor Driver / Sim]
+
+    A -- /emergency_stop --> E[watchdog]
+    E -- STOP /wheel_commands --> D
+
+    C[status_publisher] -- /robot_status --> A
+    F[camera_publisher] -- /camera/image_raw --> A
+```
 
 ### Robot Core
 Builds and installs a ROS2 workspace (assumes your ROS packages live under robot_core/src/) and launches a provided entrypoint (adjust launch file name).
 
 The `robot_launch`:
 - Provides Python nodes (like status_publisher.py) which talk to robot sensors, publish state, and eventually listen to teleop commands.
-- Contains a launch/ file (teleop_launch.py) that wires these nodes together into a running system.
+- Contains a launch/ file (teleop.launch.py) that wires these nodes together into a running system.
 
 ### FastAPI Signaling / Backend
 A separate container (backend) runs FastAPI app for signalling (WebSocket-based). Keep signalling logic in `signaling_server/app.py`.
@@ -114,7 +126,7 @@ On your host, you expose ports:
   - [ ] Already started with status_publisher.
 
 - Launch files
-- [ ] teleop_launch.py: start command + status + sensors.
+- [ ] teleop.launch.py: start command + status + sensors.
 - [ ] simulation_launch.py: same but with Gazebo / Ignition sim backend (so you can demo without hardware).
 
 - Telemetry

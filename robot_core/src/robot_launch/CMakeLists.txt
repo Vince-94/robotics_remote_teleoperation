@@ -12,6 +12,7 @@ find_package(rcl_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 
 ######################
@@ -20,7 +21,13 @@ find_package(geometry_msgs REQUIRED)
 
 # install python targets
 install(PROGRAMS
-  robot_launch/status_publisher.py
+  ${PROJECT_NAME}/status_publisher.py
+  ${PROJECT_NAME}/cmd_vel_subscriber.py
+  ${PROJECT_NAME}/camera_publisher.py
+  ${PROJECT_NAME}/watchdog.py
+  ${PROJECT_NAME}/fake_cmd_vel_publisher.py
+  ${PROJECT_NAME}/fake_emergency_stop_publisher.py
+  ${PROJECT_NAME}/monitor_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

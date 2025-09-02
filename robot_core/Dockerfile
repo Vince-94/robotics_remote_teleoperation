@@ -1,6 +1,6 @@
 # robot_core/Dockerfile
 # Minimal ROS2 image that builds a colcon workspace and runs the robot entrypoint.
-ARG ROS_DISTRO=humble
+ARG ROS_DISTRO=jazzy
 FROM ros:${ROS_DISTRO}-ros-base
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     WORKSPACE=/root/ros_ws
 
 # Install build tools and Python deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-colcon-common-extensions \
     git \
@@ -20,8 +20,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
  && rm -rf /var/lib/apt/lists/*
 
+RUN apt update && apt-get install -y ros-${ROS_DISTRO}-cv-bridge python3-opencv
+
 # Install any Python tools you want in the container (extend as needed)
-RUN pip3 install -U setuptools empy lark-parser
+RUN apt update && apt-get install -y python3-empy python3-lark
 
 # Create workspace
 RUN mkdir -p ${WORKSPACE}/src
@@ -51,4 +53,4 @@ EXPOSE 11311 8080
 ENTRYPOINT ["/ros_entrypoint.sh"]
 # Example CMD inside entrypoint can launch a ros2 launch file or drop to a shell
 # You can override this from docker-compose with command:
-# command: ["ros2", "launch", "robot_launch teleop_launch.py"]
+# command: ["ros2", "launch", "robot_launch teleop.launch.py"]
