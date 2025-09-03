@@ -12,6 +12,9 @@ services:
     # expose ports your robot uses, and devices when using real camera:
     # devices:
     #   - /dev/video0:/dev/video0
+    command: ["ros2", "launch", "robot_launch", "teleop.launch.py"]
+    ports:
+      - "9090:9090"      # rosbridge websocket
 
   signaling:
     build:

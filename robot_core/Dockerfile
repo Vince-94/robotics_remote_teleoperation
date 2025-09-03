@@ -20,10 +20,16 @@ RUN apt update && apt-get install -y --no-install-recommends \
     cmake \
  && rm -rf /var/lib/apt/lists/*
 
-RUN apt update && apt-get install -y ros-${ROS_DISTRO}-cv-bridge python3-opencv
-
 # Install any Python tools you want in the container (extend as needed)
 RUN apt update && apt-get install -y python3-empy python3-lark
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    libopencv-dev \
+    python3-opencv \
+    ros-$ROS_DISTRO-cv-bridge \
+    ros-$ROS_DISTRO-rosbridge-server \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create workspace
 RUN mkdir -p ${WORKSPACE}/src

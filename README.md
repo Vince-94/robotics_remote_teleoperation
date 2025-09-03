@@ -12,6 +12,9 @@
     - [Networking \& Docker Compose](#networking--docker-compose)
   - [How to use](#how-to-use)
     - [Setup](#setup)
+    - [Executing](#executing)
+    - [Testing](#testing)
+    - [Stopping](#stopping)
   - [Roaddmap](#roaddmap)
     - [Robot Core (ROS 2)](#robot-core-ros-2)
     - [Web Dashboard (React + ROSBridge/WebSocket)](#web-dashboard-react--rosbridgewebsocket)
@@ -98,15 +101,30 @@ On your host, you expose ports:
 ## How to use
 
 ### Setup
-1. Build dockerfiles
-   ```sh
-   docker-compose build
-   ```
-2. Start the containers
-   ```sh
-   docker-compose up
-   ```
-3. Open the dashboard in your browser at https://<host>:8443 (or http://localhost:3000 in local dev) and log in with the demo credentials in docs/INSTALL.md.
+Build dockerfiles
+```sh
+docker-compose build
+```
+
+### Executing
+```sh
+docker-compose up
+docker-compose up -d  # detached
+```
+
+Open the dashboard in your browser at https://<host>:8443 (or http://localhost:3000 in local dev) and log in with the demo credentials in docs/INSTALL.md.
+
+### Testing
+```sh
+docker-compose -f docker-compose.yml -f docker-compose.test.yml up
+docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d  # detached
+```
+
+### Stopping
+```sh
+docker-compose down
+docker-compose down -v  # clear volumes
+```
 
 
 ## Roaddmap

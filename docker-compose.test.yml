@@ -1,0 +1,20 @@
+# docker-compose.test.yml
+version: '3.8'
+services:
+  # This overrides/extends the 'robot_core' service defined in docker-compose.yml
+  # It uses the same build context but changes the container name and command
+  robot_core:
+    container_name: robot_core_test
+    # keep the same build context as the original service (no need to rebuild a different image)
+    build: ./robot_core
+    volumes:
+      - ./robot_core/src:/root/ros_ws/src:cached
+    environment:
+      - DEMO_MODE=true
+      - ROS_DISTRO=jazzy
+    # override the default entrypoint/CMD by passing args to the entrypoint script:
+    # entrypoint.sh checks if args are provided and will exec them (so this launches the test launch)
+    command: ["ros2", "launch", "robot_launch", "test_teleop.launch.py"]
+    # keep the same port mapping so the rest of the stack (web dashboard / rosbridge clients) can connect:
+    ports:
+      - "9090:9090"

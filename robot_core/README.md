@@ -6,8 +6,6 @@
 1. Enter
   ```sh
   docker-compose run --rm robot_core bash
-  # or
-  docker exec -it robot_core bash
   ```
 2. Launch: ros2 launch robot_launch teleop.launch.py
 3. Test: ros2 launch robot_launch test_teleop.launch.py
@@ -20,8 +18,6 @@
   - Responsibility: stream video (to dashboard).
 - imu_publisher.py (optional)
   - Publishes: /imu/data (sensor_msgs/Imu).
-- lidar_publisher.py (optional)
-  - Publishes: /scan (sensor_msgs/LaserScan).
 - odometry_publisher.py
   - Publishes: /odom (nav_msgs/Odometry).
   - Derived from wheel encoders or simulation.
@@ -55,4 +51,8 @@ Monitors: last received /cmd_vel.
 If timeout (e.g. >1 s): sends stop command.
 Responsibility: safety in case of connection loss.
 
+### monitor_node.py
+- Subscribes to all the outcome topics to collect data
+- /diagnostics is diagnostic_msgs/DiagnosticArray. Dashboards can subscribe to interpret statuses
+- It is computed simple staleness heuristics for comms, status, camera, and estop
 

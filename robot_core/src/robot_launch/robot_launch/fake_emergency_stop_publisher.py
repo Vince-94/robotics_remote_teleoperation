@@ -14,7 +14,7 @@ class FakeEmergencyStopPublisher(Node):
         msg = Bool()
         msg.data = self.state
         self.publisher_.publish(msg)
-        self.get_logger().info(f'Publishing fake emergency_stop: {msg.data}')
+        self.get_logger().debug(f'Publishing fake emergency_stop: {msg.data}')
         self.state = not self.state  # toggle each cycle
 
 

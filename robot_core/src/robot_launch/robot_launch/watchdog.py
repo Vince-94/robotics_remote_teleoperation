@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+"""
+Subscribers:
+- /cmd_vel [geometry_msgs.msg.Twist]
+
+Publishers:
+- /wheel_commands [std_msgs.msg.String]
+"""
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -8,7 +15,7 @@ class Watchdog(Node):
     def __init__(self):
         super().__init__('watchdog')
         self.last_cmd_time = self.get_clock().now()
-        self.timeout = 1.0  # seconds
+        self.timeout = 2.0  # seconds
         self.subscription = self.create_subscription(
             Twist,
             '/cmd_vel',

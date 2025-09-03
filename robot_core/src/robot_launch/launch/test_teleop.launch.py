@@ -18,12 +18,9 @@ def generate_launch_description():
     launch_path = PathJoinSubstitution([pkg, "launch", "teleop.launch.py"])
     launch_file = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([launch_path]),
-        # launch_arguments={
-        #     "rqt_graph": "True",
-        # }.items(),
-        # condition=IfCondition(PythonExpression(
-        #     ["'", debug, "' == 'True'"]
-        # )),
+        launch_arguments={
+            "use_fake_camera": "True",
+        }.items(),
     )
 
     fake_cmd_vel_publisher = Node(
@@ -36,6 +33,12 @@ def generate_launch_description():
         package="robot_launch",
         executable="fake_emergency_stop_publisher.py",
         name="fake_emergency_stop_publisher",
+    )
+
+    fake_camera_publisher = Node(
+        package="robot_launch",
+        executable="fake_camera_publisher.py",
+        name="fake_camera_publisher",
     )
 
     monitor_node = Node(
@@ -51,6 +54,8 @@ def generate_launch_description():
     ld.add_action(launch_file)
     ld.add_action(fake_cmd_vel_publisher)
     ld.add_action(fake_emergency_stop_publisher)
+    ld.add_action(fake_camera_publisher)
+
     ld.add_action(monitor_node)
 
     return ld

@@ -13,6 +13,8 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
 
+    use_fake_camera = LaunchConfiguration("use_fake_camera", default="false")
+
     #! Launch ROS2 node
     status_publisher = Node(
         package="robot_launch",
@@ -30,12 +32,21 @@ def generate_launch_description():
         package="robot_launch",
         executable="camera_publisher.py",
         name="camera_publisher",
+        condition=IfCondition(PythonExpression(["'", use_fake_camera, "' == 'false'"]))
     )
 
     watchdog = Node(
         package="robot_launch",
         executable="watchdog.py",
         name="watchdog",
+    )
+
+    rosbridge_server = Node(
+        package="rosbridge_server",
+        executable="rosbridge_websocket",
+        name="rosbridge_websocket",
+        output='screen',
+        arguments=['--port', '9090', '--address', '0.0.0.0']
     )
 
 
@@ -46,5 +57,6 @@ def generate_launch_description():
     ld.add_action(cmd_vel_subscriber)
     ld.add_action(camera_publisher)
     ld.add_action(watchdog)
+    ld.add_action(rosbridge_server)
 
     return ld

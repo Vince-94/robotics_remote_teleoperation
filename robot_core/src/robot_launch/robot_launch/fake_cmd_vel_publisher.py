@@ -15,7 +15,7 @@ class FakeCmdVelPublisher(Node):
         msg.linear.x = 0.2 * self.direction
         msg.angular.z = 0.1 * self.direction
         self.publisher_.publish(msg)
-        self.get_logger().info(f'Publishing fake cmd_vel: {msg.linear.x:.2f}, {msg.angular.z:.2f}')
+        self.get_logger().debug(f'Publishing fake cmd_vel: {msg.linear.x:.2f}, {msg.angular.z:.2f}')
         self.direction *= -1  # alternate forward/backward
 
 

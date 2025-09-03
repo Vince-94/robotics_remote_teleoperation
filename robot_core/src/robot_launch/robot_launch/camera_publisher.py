@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Publishers:
+- /camera/image_raw [sensor_msgs.msg.Image]
+"""
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -13,7 +17,8 @@ class CameraPublisher(Node):
         self.bridge = CvBridge()
         self.cap = cv2.VideoCapture(0)  # USB camera
         if not self.cap.isOpened():
-            self.get_logger().warn("Camera not found.")
+            self.get_logger().warn("Camera not found. Killing node...")
+            self.destroy_node()
         else:
             self.get_logger().info("camera_publisher node started.")
 

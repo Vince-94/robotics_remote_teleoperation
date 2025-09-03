@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+Publishers:
+- /robot_status [std_msgs.msg.String]
+"""
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String

@@ -1,4 +1,11 @@
 #!/usr/bin/env python3
+"""
+Subscribers:
+- /cmd_vel [geometry_msgs.msg.Twist]
+
+Publishers:
+- /wheel_commands [std_msgs.msg.String]
+"""
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -19,7 +26,7 @@ class CmdVelSubscriber(Node):
         # Convert Twist to wheel command (simplified)
         command = f"LIN:{msg.linear.x:.2f}, ANG:{msg.angular.z:.2f}"
         self.publisher_.publish(String(data=command))
-        self.get_logger().info(f"Received cmd_vel -> Published wheel command: {command}")
+        self.get_logger().debug(f"Received cmd_vel -> Published wheel command: {command}")
 
 def main(args=None):
     rclpy.init(args=args)
