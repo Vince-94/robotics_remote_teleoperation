@@ -11,16 +11,10 @@
 3. Test: ros2 launch robot_launch test_teleop.launch.py
 
 
-## External data
+## Workflow
 
-- camera_publisher.py
-  - Publishes: /camera/image_raw (sensor_msgs/Image).
-  - Responsibility: stream video (to dashboard).
-- imu_publisher.py (optional)
-  - Publishes: /imu/data (sensor_msgs/Imu).
-- odometry_publisher.py
-  - Publishes: /odom (nav_msgs/Odometry).
-  - Derived from wheel encoders or simulation.
+![scheme](scheme.excalidraw.png)
+
 
 ## Nodes
 
@@ -28,8 +22,7 @@
 Info: CPU, battery, network latency, uptime
 
 - Publishes:
-    - /robot/status
-    - /odom
+  - /robot/status
 
 ### cmd_vel_subscriber.py
 Converts generic teleop input into actuator commands.
@@ -37,7 +30,7 @@ Converts generic teleop input into actuator commands.
 - Subscribes:
   - /cmd_vel (geometry_msgs/Twist) → velocity commands (from web joystick).
 - Publishes:
-    - /wheel_commands (custom WheelCmd.msg or directly to motor driver topic).
+  - /wheel_commands (custom WheelCmd.msg or directly to motor driver topic).
 
 ### emergency_stop.py
 Fail-safe.

@@ -45,17 +45,7 @@ A minimal, production-minded teleoperation stack for a single mobile robot. Prov
 
 ## Workflow
 
-```mermaid
-graph TD
-    A[Web Dashboard] -- /cmd_vel --> B[cmd_vel_subscriber]
-    B -- /wheel_commands --> D[Motor Driver / Sim]
-
-    A -- /emergency_stop --> E[watchdog]
-    E -- STOP /wheel_commands --> D
-
-    C[status_publisher] -- /robot_status --> A
-    F[camera_publisher] -- /camera/image_raw --> A
-```
+![scheme](docs/scheme.excalidraw.png)
 
 ### Robot Core
 Builds and installs a ROS2 workspace (assumes your ROS packages live under robot_core/src/) and launches a provided entrypoint (adjust launch file name).
