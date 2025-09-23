@@ -33,8 +33,11 @@ rosidl_get_typesupport_target(typesupport_target ${PROJECT_NAME} "rosidl_typesup
 ######################
 
 # install python targets
-install(PROGRAMS
-  ${PROJECT_NAME}/status_node.py
+install(
+  PROGRAMS
+    ${PROJECT_NAME}/fake_status_node.py
+    ${PROJECT_NAME}/fake_odom_node.py
+    ${PROJECT_NAME}/diag_aggregator_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

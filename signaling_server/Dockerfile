@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # copy app
 COPY ./app.py ./app.py
 COPY ./auth.py ./auth.py
-COPY ./static ./static
+# COPY ./static ./static
 
 EXPOSE 8443
 

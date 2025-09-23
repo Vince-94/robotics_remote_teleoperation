@@ -18,7 +18,7 @@ RUN apt update && apt-get install -y --no-install-recommends \
     ca-certificates \
     build-essential \
     cmake \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 # Install any Python tools you want in the container (extend as needed)
 RUN apt update && apt-get install -y python3-empy python3-lark

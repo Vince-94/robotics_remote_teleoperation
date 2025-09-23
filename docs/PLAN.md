@@ -58,7 +58,7 @@ teleop-mvp/
 ### Tech stack
 
 - Robot runtime: ROS2 (Humble or newer).
-- Web backend: FastAPI (REST + WebSocket) for signaling and telemetry API.
+- Web backend: FastAPI (Rest API + WebSocket) for signaling and telemetry API.
 - Web frontend: React (or plain HTML/JS) using WebRTC (get camera stream) + ros2-web-bridge or custom WebSocket for topics.
 - Video transport: WebRTC (best for low-latency browser streams). GStreamer pipeline on robot to feed WebRTC.
 - Signaling server: simple WebSocket server in FastAPI (aiortc or simple-peer in frontend).

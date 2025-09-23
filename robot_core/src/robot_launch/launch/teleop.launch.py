@@ -13,19 +13,30 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
 
-    use_fake_camera = LaunchConfiguration("use_fake_camera", default="false")
-
     #! Launch ROS2 node
-    status_node = Node(
+    fake_odom_node = Node(
         package="robot_launch",
-        executable="status_node.py",
-        name="status_node",
+        executable="fake_odom_node.py",
+        name="fake_odom_node",
     )
 
+    fake_status_node = Node(
+        package="robot_launch",
+        executable="fake_status_node.py",
+        name="fake_status_node",
+    )
+
+    diag_aggregator_node = Node(
+        package="robot_launch",
+        executable="diag_aggregator_node.py",
+        name="diag_aggregator_node",
+    )
 
     #! LaunchDescription
     ld = LaunchDescription()
 
-    ld.add_action(status_node)
+    ld.add_action(fake_odom_node)
+    ld.add_action(fake_status_node)
+    ld.add_action(diag_aggregator_node)
 
     return ld

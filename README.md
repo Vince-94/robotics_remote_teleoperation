@@ -15,7 +15,7 @@
     - [Executing](#executing)
     - [Testing](#testing)
     - [Stopping](#stopping)
-  - [Roaddmap](#roaddmap)
+  - [Roadmap](#roadmap)
     - [Robot Core (ROS 2)](#robot-core-ros-2)
     - [Web Dashboard (React + ROSBridge/WebSocket)](#web-dashboard-react--rosbridgewebsocket)
     - [Backend / Signaling Server (FastAPI)](#backend--signaling-server-fastapi)
@@ -37,6 +37,7 @@ A minimal, production-minded teleoperation stack for a single mobile robot. Prov
 
 
 ## Requirements
+
 - Docker & Docker Compose (v1.29+ recommended).
 - Optional: GPU support on robot host for hardware encoding (NVIDIA drivers + nvidia-container-runtime) for Jetson/desktop.
 - Modern browser (Chrome/Edge/Firefox) for the dashboard.
@@ -50,7 +51,7 @@ A minimal, production-minded teleoperation stack for a single mobile robot. Prov
 ### Robot Core
 Builds and installs a ROS2 workspace (assumes your ROS packages live under robot_core/src/) and launches a provided entrypoint (adjust launch file name).
 
-The `robot_launch`:
+The `robot_launch` package:
 - Provides Python nodes (like status_publisher.py) which talk to robot sensors, publish state, and eventually listen to teleop commands.
 - Contains a launch/ file (teleop.launch.py) that wires these nodes together into a running system.
 
@@ -110,6 +111,11 @@ docker-compose -f docker-compose.yml -f docker-compose.test.yml up
 docker-compose -f docker-compose.yml -f docker-compose.test.yml up -d  # detached
 ```
 
+Inspection
+```sh
+docker-compose run --service-ports --rm robot_core bash
+```
+
 ### Stopping
 ```sh
 docker-compose down
@@ -117,7 +123,7 @@ docker-compose down -v  # clear volumes
 ```
 
 
-## Roaddmap
+## Roadmap
 
 ### Robot Core (ROS 2)
 - Command interface nodes
