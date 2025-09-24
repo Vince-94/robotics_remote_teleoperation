@@ -24,6 +24,7 @@ services:
       - signaling
     ports:
       - "9000:9000"
+      - "9001:9001"
 
   signaling:
     build:

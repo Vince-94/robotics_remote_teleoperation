@@ -21,7 +21,7 @@ RUN pip3 install --no-cache-dir websockets aiohttp --break-system-packages
 COPY ./bridge.py ./bridge.py
 COPY ./config ./config
 
-EXPOSE 9000
+EXPOSE 9000 9001
 
 # Run the bridge script on container start
 CMD ["bash", "-lc", "source /opt/ros/${ROS_DISTRO}/setup.bash && python3 /bridge/bridge.py"]
