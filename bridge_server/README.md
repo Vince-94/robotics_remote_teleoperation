@@ -51,7 +51,7 @@ The bridge exposes robot telemetry over a single WebSocket server and accepts li
 
 Bridge sends JSON strings over the WebSocket. Example payloads:
 
-* Status
+* Status: A string
     ```json
     {"topic":"/status","data":"motor_ready"}
     ```

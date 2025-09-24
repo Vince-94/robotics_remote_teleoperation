@@ -32,6 +32,8 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import String as StdString, Bool
 from diagnostic_msgs.msg import DiagnosticArray
 
+from rosidl_runtime_py.convert import message_to_ordereddict
+
 
 TELEMETRY_PORT = int(os.environ.get("TELEMETRY_PORT", 9000))
 TELEMETRY_HTTP_PORT = int(os.environ.get("TELEMETRY_HTTP_PORT", 9001))
@@ -58,7 +60,7 @@ class BridgeNode(Node):
 
         # subscribers
         self.create_subscription(StdString, "/status", self.status_cb, 10)
-        # self.create_subscription(Odometry, "/odom", self.odom_cb, 10)
+        self.create_subscription(Odometry, "/odom", self.odom_cb, 10)
         # self.create_subscription(DiagnosticArray, "/diagnostics", self.diag_cb, 10)
 
         # publishers
@@ -70,64 +72,14 @@ class BridgeNode(Node):
         payload = {"topic": "/status", "data": msg.data}
         self.loop.call_soon_threadsafe(self.telemetry_queue.put_nowait, json.dumps(payload))
 
-    # def odom_cb(self, msg: Odometry):
-    #     p = msg.pose.pose.position
-    #     o = msg.pose.pose.orientation
-
-    #     # twist
-    #     t_lin = msg.twist.twist.linear
-    #     t_ang = msg.twist.twist.angular
-
-    #     # header (stamp may be builtin_time type with sec/nanosec)
-    #     header = {}
-    #     try:
-    #         header = {
-    #             "stamp": {
-    #                 "sec": getattr(msg.header.stamp, "sec", None),
-    #                 "nanosec": getattr(msg.header.stamp, "nanosec", None),
-    #             },
-    #             "frame_id": getattr(msg.header, "frame_id", ""),
-    #         }
-    #     except Exception:
-    #         # be defensive if header fields aren't present
-    #         header = {
-    #             "stamp": {
-    #                 "sec": None,
-    #                 "nanosec": None,
-    #             },
-    #             "frame_id": "",
-    #         }
-
-    #     payload = {
-    #         "topic": "/odom",
-    #         "header": header,
-    #         "child_frame_id": getattr(msg, "child_frame_id", ""),
-    #         "pose": {
-    #             "pose": {
-    #                 "position": {
-    #                     "x": float(p.x), "y": float(p.y), "z": float(p.z)
-    #                 },
-    #                 "orientation": {
-    #                     "x": float(o.x), "y": float(o.y), "z": float(o.z), "w": float(o.w)
-    #                 },
-    #             },
-    #             "covariance": []
-    #         },
-    #         "twist": {
-    #             "twist": {
-    #                 "linear": {
-    #                     "x": float(t_lin.x), "y": float(t_lin.y), "z": float(t_lin.z)
-    #                 },
-    #                 "angular": {
-    #                     "x": float(t_ang.x), "y": float(t_ang.y), "z": float(t_ang.z)
-    #                 },
-    #             },
-    #             "covariance": []
-    #         },
-    #     }
-
-    #     # safe_payload = self._make_json_safe(payload)
-    #     self.loop.call_soon_threadsafe(self.telemetry_queue.put_nowait, json.dumps(payload))
+    def odom_cb(self, msg: Odometry):
+        try:
+            od = message_to_ordereddict(msg)   # msg -> OrderedDict (nested)
+            od.update({"topic": "/status"})
+            safe = self._make_json_safe(od)    # reuse your helper to normalize bytes etc
+            self.loop.call_soon_threadsafe(self.telemetry_queue.put_nowait, json.dumps(safe))
+        except Exception as e:
+            self.get_logger().error(f"odom serialize err: {e}")
 
     def _normalize_level(self, level):
         if isinstance(level, int):
@@ -317,14 +269,34 @@ async def websocket_handler(websocket: Any, *args, node, telemetry_queue):
     async def receiver():
         try:
             async for text in websocket:
+                # ignore empty / non-json frames
                 try:
                     obj = json.loads(text)
                 except Exception:
                     continue
+
+                # TODO Detect strict auth-only messages to avoid echoing them
+                is_auth_msg = False
+                if isinstance(obj, dict):
+                    if obj.get("token") and len(obj) == 1:
+                        is_auth_msg = True
+                    if obj.get("type") == "auth" and obj.get("token") and len(obj) == 2:
+                        is_auth_msg = True
+
                 if "cmd_vel" in obj:
                     node.publish_cmd(obj["cmd_vel"])
                 if "estop" in obj:
                     node.publish_estop(bool(obj["estop"]))
+
+                # TODO Echo non-auth messages by putting them on the telemetry_queue so sender() will broadcast
+                if not is_auth_msg:
+                    try:
+                        # add debugging log
+                        node.get_logger().info(f"Receiver: enqueueing message for broadcast: {obj}")
+                        await telemetry_queue.put(json.dumps(obj))
+                    except Exception:
+                        node.get_logger().warning("Receiver: failed to enqueue message for broadcast")
+
         except asyncio.CancelledError:
             return
         except websockets.ConnectionClosed:
