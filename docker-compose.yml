@@ -16,16 +16,6 @@ services:
     ports:
       - "9090:9090"      # rosbridge websocket
 
-  signaling:
-    build:
-      context: ./signaling_server
-      dockerfile: Dockerfile
-    container_name: signaling
-    ports:
-      - "8443:8443"
-    environment:
-      - AUTH_TOKENS=demo_token_123
-
   bridge:
     build: ./bridge_server
     container_name: bridge
@@ -34,6 +24,16 @@ services:
       - signaling
     ports:
       - "9000:9000"
+
+  signaling:
+    build:
+      context: ./signaling_server
+      dockerfile: Dockerfile
+    container_name: signaling
+    ports:
+      - "8000:8000"
+    environment:
+      - AUTH_TOKENS=demo_token_123
 
   web:
     build: ./web_dashboard

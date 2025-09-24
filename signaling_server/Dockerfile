@@ -21,7 +21,7 @@ COPY ./app.py ./app.py
 COPY ./auth.py ./auth.py
 # COPY ./static ./static
 
-EXPOSE 8443
+EXPOSE 8000
 
 # Run with uvicorn; you can add --ssl-keyfile/--ssl-certfile when in production
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8443", "--ws", "websockets"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--ws", "websockets"]

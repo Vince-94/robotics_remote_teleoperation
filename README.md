@@ -48,26 +48,26 @@ A minimal, production-minded teleoperation stack for a single mobile robot. Prov
 
 ![scheme](docs/scheme.excalidraw.png)
 
-### Robot Core
+### [Robot Core](robot_core/README.md)
 Builds and installs a ROS2 workspace (assumes your ROS packages live under robot_core/src/) and launches a provided entrypoint (adjust launch file name).
 
 The `robot_launch` package:
 - Provides Python nodes (like status_publisher.py) which talk to robot sensors, publish state, and eventually listen to teleop commands.
 - Contains a launch/ file (teleop.launch.py) that wires these nodes together into a running system.
 
-### FastAPI Signaling / Backend
-A separate container (backend) runs FastAPI app for signalling (WebSocket-based). Keep signalling logic in `signaling_server/app.py`.
+### [FastAPI Signaling / Backend](signaling_server/README.md)
+A separate container (backend) runs FastAPI app for signalling (WebSocket-based). Keep signaling logic in `signaling_server/app.py`.
 
 Its jobs is to provide API endpoints to authenticate users, manage sessions, and act as a “signaling server” for WebRTC.
 
-### ROS2-Web bridge
+### [ROS2-Web bridge](bridge_server/README.md)
 A small Python bridge that uses rclpy to subscribe/publish and forwards JSON via WebSocket to the web dashboard. Place bridge logic in `bridge_server/bridge.py`.
 - Subscribes/publishes to ROS topics via rclpy or rosbridge (depending on design).
 - Exposes robot status (sensor data, logs, etc.) over HTTP/WebSockets to clients.
 - Receives teleop commands (e.g. velocity, button presses) from the dashboard and publishes them to ROS.
 
-### Web Dashboard
-Multi-stage build for a React app. Serves the static build using serve on a soecific port.
+### [Web Dashboard](web_dashboard/README.md)
+Multi-stage build for a React app. Serves the static build using serve on a specific port.
 
 When you run it in Docker:
 - It connects to the FastAPI backend.
@@ -84,7 +84,7 @@ The glue is your docker-compose.yml, which defines:
 All services are on the same Docker network so they can talk to each other by container name.
 
 On your host, you expose ports:
-- Signaling Backend API (8443:8443). Exposed publicly so browsers can negotiate connections.
+- Signaling Backend API (8000:8000). Exposed publicly so browsers can negotiate connections.
 - Bridge WebSocket or REST API endpoint (9000:9000). Exposed publicly so the web dashboard can send teleop commands and receive robot telemetry.
 - Dashboard web UI (3000:3000). React development server. Public entry point for the web dashboard.
 
@@ -103,7 +103,7 @@ docker-compose up
 docker-compose up -d  # detached
 ```
 
-Open the dashboard in your browser at https://<host>:8443 (or http://localhost:3000 in local dev) and log in with the demo credentials in docs/INSTALL.md.
+Open the dashboard in your browser at https://<host>:8000 (or http://localhost:3000 in local dev) and log in with the demo credentials in docs/INSTALL.md.
 
 ### Testing
 ```sh

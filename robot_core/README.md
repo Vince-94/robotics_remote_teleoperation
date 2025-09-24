@@ -1,51 +1,23 @@
 # Robot Core
 
+- [Robot Core](#robot-core)
+  - [How to use](#how-to-use)
+  - [Packages](#packages)
+    - [robot\_launch](#robot_launch)
+
 
 ## How to use
 
-1. Enter
-  ```sh
-  docker-compose run --rm robot_core bash
-  ```
-2. Launch: ros2 launch robot_launch teleop.launch.py
-3. Test: ros2 launch robot_launch test_teleop.launch.py
+1. Build the container: `docker-compose build robot_core`
+2. Start the container: `docker-compose up robot_core`
+3. Interactive mode: `docker-compose run --rm robot_core bash`
 
 
-## Workflow
+## Packages
 
-![scheme](scheme.excalidraw.png)
+### robot_launch
+The entrypoint package that launches the application
 
-
-## Nodes
-
-### status_publisher.py
-Info: CPU, battery, network latency, uptime
-
-- Publishes:
-  - /robot/status
-
-### cmd_vel_subscriber.py
-Converts generic teleop input into actuator commands.
-
-- Subscribes:
-  - /cmd_vel (geometry_msgs/Twist) → velocity commands (from web joystick).
-- Publishes:
-  - /wheel_commands (custom WheelCmd.msg or directly to motor driver topic).
-
-### emergency_stop.py
-Fail-safe.
-
-- Service:
-  - /emergency_stop (std_srvs/Trigger): On trigger: zeros velocity and sends stop command.
-
-### watchdog.py
-Monitors: last received /cmd_vel.
-
-If timeout (e.g. >1 s): sends stop command.
-Responsibility: safety in case of connection loss.
-
-### monitor_node.py
-- Subscribes to all the outcome topics to collect data
-- /diagnostics is diagnostic_msgs/DiagnosticArray. Dashboards can subscribe to interpret statuses
-- It is computed simple staleness heuristics for comms, status, camera, and estop
-
+```sh
+ros2 launch robot_launch teleop.launch.py
+```

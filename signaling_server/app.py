@@ -1,14 +1,25 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse, JSONResponse
 from typing import List
 from auth import validate_token
 
-app = FastAPI(title="Teleop Signaling")
+app = FastAPI(title="Teleop Signaling Backend")
 
 # basic html page for quick check
 @app.get("/")
 async def index():
     return HTMLResponse("<h3>Signaling server is up. Connect via WebSocket at /ws?token=...</h3>")
+
+# health endpoint
+@app.get("/health")
+async def health():
+    return JSONResponse(
+        {
+            "status": "ok",
+            "service": "signaling_server",
+            "active_connections": len(manager.active) if "manager" in globals() else 0,
+        }
+    )
 
 # Very small WebSocket manager
 class ConnectionManager:

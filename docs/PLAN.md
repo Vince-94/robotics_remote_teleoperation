@@ -115,7 +115,7 @@ teleop-mvp/
 
 ### Demo script
 - docker-compose up --build (runs sim or real robot stack).
-- Open https://<host>:8443 → login.
+- Open https://<host>:8000 → login.
 - Start video feed → show low-latency camera.
 - Use joystick/keyboard → robot moves; show watchdog stopping on disconnect.
 - Trigger E-STOP and recover. Record all steps for a 2-3 minute video.

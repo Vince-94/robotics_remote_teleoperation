@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <body>
+    <h3>WS manual test</h3>
+    <input id="msg" value='{"type":"smoke","payload":{"text":"hello from browser"}}' style="width:80%"/>
+    <button id="send">Send</button>
+    <pre id="log"></pre>
+    <script>
+      const url = "ws://localhost:8000/ws?token=demo_token_123";
+      const ws = new WebSocket(url);
+      const log = document.getElementById('log');
+
+      ws.onopen = () => log.appendChild(document.createTextNode("OPEN\n"));
+      ws.onmessage = e => {
+        log.appendChild(document.createTextNode("RECV: " + e.data + "\n"));
+      };
+      ws.onclose = () => log.appendChild(document.createTextNode("CLOSED\n"));
+
+      document.getElementById('send').onclick = () => {
+        const m = document.getElementById('msg').value;
+        ws.send(m);
+        log.appendChild(document.createTextNode("SENT: " + m + "\n"));
+      };
+    </script>
+  </body>
+</html>
