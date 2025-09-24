@@ -15,6 +15,8 @@ import threading
 import websockets
 from functools import partial
 from typing import Any
+import os
+import math
 
 import rclpy
 from rclpy.node import Node
@@ -129,11 +131,47 @@ class BridgeNode(Node):
 
         self.loop.call_soon_threadsafe(self.telemetry_queue.put_nowait, serialized)
 
+    def publish_cmd(self, cmd: dict):
+        """Convert a cmd_vel-like dict into geometry_msgs/Twist and publish it.
+
+        `cmd` expected shape:
+        { "linear": {"x":..., "y":..., "z":...}, "angular": {"x":..., "y":..., "z":...} }
+        """
+        msg = Twist()
+
+        t = Twist()
+        lin = cmd.get("linear", {}) or {}
+        ang = cmd.get("angular", {}) or {}
+
+        # defensive conversion
+        lx = float(lin.get("x", 0.0))
+        ly = float(lin.get("y", 0.0))
+        lz = float(lin.get("z", 0.0))
+
+        ax = float(ang.get("x", 0.0))
+        ay = float(ang.get("y", 0.0))
+        az = float(ang.get("z", 0.0))
+
+        # Safety clamping (tunable)
+        MAX_LINEAR = float(os.environ.get("MAX_LINEAR", math.inf))   # m/s
+        MAX_ANGULAR = float(os.environ.get("MAX_ANGULAR", math.inf)) # rad/s
+
+        def clamp(v, m): return max(min(v, m), -m)
+
+        t.linear.x = clamp(lx, MAX_LINEAR)
+        t.linear.y = clamp(ly, MAX_LINEAR)
+        t.linear.z = clamp(lz, MAX_LINEAR)
+        t.angular.x = clamp(ax, MAX_ANGULAR)
+        t.angular.y = clamp(ay, MAX_ANGULAR)
+        t.angular.z = clamp(az, MAX_ANGULAR)
+
+        self.cmd_pub.publish(t)
+
     def publish_estop(self, value: bool):
         msg = Bool()
         msg.data = value
         self.estop_pub.publish(msg)
-
+        self.get_logger().warning(f"eStop triggered")
 
 async def websocket_handler(websocket: Any, node, telemetry_queue):
     # Very simple handler: spawn two tasks to send telemetry and receive commands

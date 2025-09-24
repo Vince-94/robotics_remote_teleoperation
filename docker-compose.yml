@@ -36,7 +36,7 @@ services:
     environment:
       - AUTH_TOKENS=demo_token_123
 
-  web:
+  dashboard:
     build: ./web_dashboard
     container_name: web_dashboard
     depends_on:

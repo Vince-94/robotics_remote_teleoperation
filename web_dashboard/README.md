@@ -50,11 +50,11 @@ npm run dev
 
 ### Production / Docker
 
-1. Build the container: `docker-compose build web_dashboard`
-2. Start the container: `docker-compose up web_dashboard`
-3. Interactive mode: `docker run --rm -p 3000:3000 --name web_dashboard web_dashboard`
+1. Build the container: `docker-compose build`
+2. Start the container: `docker-compose up dashboard`
+3. Interactive mode: `docker run --rm -p 3000:3000 --name dashboard dashboard`
 4. Open http://localhost:3000
-5. Close the container: `docker-compose down web_dashboard`
+5. Close the container: `docker-compose down dashboard`
 
 ---
 
