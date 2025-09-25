@@ -15,6 +15,7 @@
     - [Executing](#executing)
     - [Testing](#testing)
     - [Stopping](#stopping)
+  - [End-to\_end test](#end-to_end-test)
   - [Roadmap](#roadmap)
     - [Robot Core (ROS 2)](#robot-core-ros-2)
     - [Web Dashboard (React + ROSBridge/WebSocket)](#web-dashboard-react--rosbridgewebsocket)
@@ -121,6 +122,22 @@ docker-compose run --service-ports --rm robot_core bash
 docker-compose down
 docker-compose down -v  # clear volumes
 ```
+
+
+## End-to_end test
+1. Start the container: `docker-compose up -d`
+2. Check health endpoints:
+   - `curl http://localhost:9001/health`
+   - `curl http://localhost:8000/health`
+3. Open the UI: `http://localhost:3000/`
+4. Verify /health: `curl http://localhost:9001/health`
+5. Publish from ROS2: `ros2 topic pub /status std_msgs/String "data: 'motor_ready'" -r 1` -> UI status has to change
+6. Trigger from UI: `ros2 topic echo /cmd_vel_in` <- press a buttom
+7. Multi-client / broadcast checks:
+   1. Open a second browser window or run wscat: `wscat -c "ws://localhost:9000/?token=demo_token_123"`
+   2. From the dashboard (client A) press a control or send a JSON via JS console: `{"type":"smoke","payload":{"text":"hello"}}`
+   3. Expect: `both clients receive the message (bridge broadcasts to all connected clients).`
+
 
 
 ## Roadmap

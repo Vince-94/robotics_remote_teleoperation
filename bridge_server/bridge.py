@@ -17,10 +17,10 @@ from functools import partial
 from typing import Any
 import os
 import math
+from aiohttp import web
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String, Bool
@@ -28,6 +28,10 @@ from diagnostic_msgs.msg import DiagnosticArray
 
 
 TELEMETRY_PORT = 9000
+HEALTH_PORT = int(os.environ.get("HEALTH_PORT", 9001))
+
+# Track active connections for /health
+_active_webs = set()
 
 
 class BridgeNode(Node):
@@ -173,7 +177,9 @@ class BridgeNode(Node):
         self.estop_pub.publish(msg)
         self.get_logger().warning(f"eStop triggered")
 
-async def websocket_handler(websocket: Any, node, telemetry_queue):
+# async def websocket_handler(websocket: Any, node, telemetry_queue):
+async def websocket_handler(websocket: Any, *args, node, telemetry_queue):
+    _active_webs.add(websocket)
     # Very simple handler: spawn two tasks to send telemetry and receive commands
     async def sender():
         try:
@@ -209,9 +215,21 @@ async def websocket_handler(websocket: Any, node, telemetry_queue):
     for t in pending:
         t.cancel()
 
+    _active_webs.discard(websocket)
+
 
 def start_rclpy_spin(node):
     rclpy.spin(node)
+
+
+# Health endpoint
+async def health_handler(request):
+    return web.json_response({
+        "status": "ok",
+        "service": "bridge_server",
+        "telemetry_port": TELEMETRY_PORT,
+        "active_connections": len(_active_webs),
+    })
 
 
 async def main():
@@ -233,6 +251,16 @@ async def main():
             port=TELEMETRY_PORT,
     ):
         node.get_logger().info(f"Bridge websocket server running on port {TELEMETRY_PORT}")
+
+        # Health
+        app = web.Application()
+        app.router.add_get("/health", health_handler)
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, "0.0.0.0", HEALTH_PORT)
+        await site.start()
+        node.get_logger().info("Health endpoint running on port 9001")
+
         await asyncio.Future()
 
 
